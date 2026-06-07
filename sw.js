@@ -1,4 +1,4 @@
-const CACHE = 'labor-law-v1';
+const CACHE = 'labor-law-v2';
 const FILES = [
   './index.html',
   './manifest.json',
