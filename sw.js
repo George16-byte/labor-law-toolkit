@@ -1,27 +1,27 @@
 const CACHE = 'labor-law-v2';
-const FILES = [
-  './index.html',
-  './manifest.json',
-  './icon-192.png',
-  './icon-512.png'
-];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)));
+  e.waitUntil(
+    caches.open(CACHE).then(c => c.addAll([
+      './index.html',
+      './manifest.json',
+      './icon-192.png',
+      './icon-512.png'
+    ]))
+  );
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys =>
-    Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-  ));
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    ).then(() => self.clients.claim())
+  );
 });
 
 self.addEventListener('fetch', e => {
-  // CDN资源走网络
-  if (e.request.url.includes('cdn.tailwindcss.com')) {
-    e.respondWith(fetch(e.request));
-    return;
-  }
+  if (e.request.url.includes('cdn.tailwindcss.com')) return;
   e.respondWith(
     caches.match(e.request).then(r => r || fetch(e.request).then(res => {
       if (res.ok) {
@@ -31,4 +31,9 @@ self.addEventListener('fetch', e => {
       return res;
     }))
   );
+});
+
+// 通知页面有新版本
+self.addEventListener('message', e => {
+  if (e.data === 'skipWaiting') self.skipWaiting();
 });
