@@ -371,9 +371,29 @@ tailwind.config = { theme: { extend: { colors: { brand: { 50:'#eff6ff',100:'#dbe
 
 </main>
 
-<footer class="max-w-4xl mx-auto px-4 py-8 text-center text-xs text-gray-400">
-  <p>⚠️ 计算结果仅供参考，不构成法律意见。具体案件请咨询专业律师。</p>
-  <p class="mt-1">数据经大连市统计局公报及国家统计局交叉核对。以官方最新公布为准。</p>
+<footer class="max-w-4xl mx-auto px-4 py-8">
+  <!-- 作者简介 -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+    <div class="flex items-start gap-4">
+      <div class="w-14 h-14 bg-brand-600 rounded-full flex items-center justify-center text-white text-xl font-bold shrink-0">于</div>
+      <div class="flex-1 min-w-0">
+        <h3 class="text-base font-semibold text-gray-900">于兆志 <span class="text-sm font-normal text-gray-500">| 执业律师</span></h3>
+        <p class="text-sm text-gray-600 mt-1">多年一线实务经验，专注劳动法领域</p>
+        <p class="text-sm text-gray-500">辽宁华夏律师事务所</p>
+        <p class="text-xs text-gray-400">📍 大连市中山区长江东路9号26层</p>
+        <div class="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100">
+          <a href="https://www.xiaohongshu.com/user/profile/" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-xs text-red-500 hover:text-red-600 transition-colors">
+            <span class="text-base">📕</span> 小红书：大连劳动法于律师
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center text-xs text-gray-400">
+    <p>⚠️ 计算结果仅供参考，不构成法律意见。具体案件请咨询专业律师。</p>
+    <p class="mt-1">数据经大连市统计局公报及国家统计局交叉核对。以官方最新公布为准。</p>
+  </div>
 </footer>
 
 <script>
