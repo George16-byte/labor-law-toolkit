@@ -433,16 +433,19 @@ document.getElementById('inj-calc').addEventListener('click', () => {
   const bonus = salary * bm[level];
   let medical = 0, employment = 0;
   if (endRel && level >= 5 && level <= 10) { medical = avg * (mm[level]||0); employment = avg * (em[level]||0); }
-  const dr = {1:0.9,2:0.85,3:0.8,4:0.75};
+  const dr = {1:0.9,2:0.85,3:0.8,4:0.75,5:0.7,6:0.6};
   let ma = 0;
-  if (level <= 4) { ma = Math.max(salary * dr[level], avg * 0.6); }
+  if ((level <= 4) || (level >= 5 && level <= 6 && !endRel)) {
+    ma = Math.max(salary * dr[level], avg * 0.6);
+  }
   let h = `<div class="space-y-2 text-sm"><div class="flex justify-between"><span class="text-gray-600">伤残等级</span><span class="font-medium">${level}级</span></div><div class="flex justify-between"><span class="text-gray-600">一次性伤残补助金</span><span class="font-medium text-brand-700">${fmt(bonus)} 元（${bm[level]}个月）</span></div>`;
   if (endRel && medical > 0) { h += `<div class="flex justify-between"><span class="text-gray-600">医疗补助金</span><span class="font-medium">${fmt(medical)} 元</span></div><div class="flex justify-between"><span class="text-gray-600">就业补助金</span><span class="font-medium">${fmt(employment)} 元</span></div>`; }
   if (ma > 0) h += `<div class="flex justify-between"><span class="text-gray-600">伤残津贴（按月）</span><span class="font-medium">${fmt(ma)} 元/月</span></div>`;
   let total = bonus + medical + employment;
   if (endRel && level >= 5) h += `<div class="border-t pt-2 mt-2 flex justify-between text-base"><span class="font-semibold">三项合计</span><span class="font-bold text-brand-700">${fmt(total)} 元</span></div>`;
-  else if (level <= 4) h += `<div class="border-t pt-2 text-sm text-gray-500">1-4级保留劳动关系，按月领伤残津贴</div>`;
-  else h += `<div class="border-t pt-2 text-sm text-gray-500">未解除劳动关系，医疗/就业补助金暂不支付</div>`;
+  else if (level <= 4) h += `<div class="border-t pt-2 text-sm text-gray-500">1-4级保留劳动关系，按月领取伤残津贴。</div>`;
+  else if (level >= 5 && level <= 6) h += `<div class="border-t pt-2 text-sm text-gray-500">5-6级职工难以安排工作的，可领取伤残津贴；也可协商解除领取医疗+就业补助金。</div>`;
+  else h += `<div class="border-t pt-2 text-sm text-gray-500">未解除劳动关系，医疗/就业补助金暂不支付。</div>`;
   h += `</div>`;
   document.getElementById('inj-result').innerHTML = h;
   document.getElementById('inj-result').classList.remove('hidden');
@@ -475,9 +478,10 @@ document.getElementById('al-calc').addEventListener('click', () => {
   const daily = parseFloat(document.getElementById('al-daily').value);
   if (!range || !worked) { alert('请填写完整信息'); return; }
   const ad = range === '1-10' ? 5 : range === '10-20' ? 10 : 15;
-  const pr = Math.floor(ad * worked / 365);
+  const wd = Math.min(worked, 365);
+  const pr = Math.floor(ad * wd / 365);
   const rem = Math.max(0, pr - used);
-  let r = `<div class="space-y-2 text-sm"><div class="flex justify-between"><span>全年应休</span><span class="font-medium">${ad} 天</span></div><div class="flex justify-between"><span>当年已工作</span><span class="font-medium">${worked} 天</span></div><div class="flex justify-between"><span>折算应休</span><span class="font-medium">${pr} 天</span></div><div class="flex justify-between"><span>已休</span><span class="font-medium">${used} 天</span></div><div class="flex justify-between"><span>剩余</span><span class="font-medium text-brand-700">${rem} 天</span></div>`;
+  let r = `<div class="space-y-2 text-sm"><div class="flex justify-between"><span>全年应休</span><span class="font-medium">${ad} 天</span></div><div class="flex justify-between"><span>当年已工作</span><span class="font-medium">${wd} 天</span></div><div class="flex justify-between"><span>折算应休</span><span class="font-medium">${pr} 天</span></div><div class="flex justify-between"><span>已休</span><span class="font-medium">${used} 天</span></div><div class="flex justify-between"><span>剩余</span><span class="font-medium text-brand-700">${rem} 天</span></div>`;
   if (daily && rem > 0) r += `<div class="border-t pt-2 mt-2 flex justify-between text-base"><span class="font-semibold">未休补偿（额外200%）</span><span class="font-bold text-brand-700">${fmt(rem*daily*2)} 元</span></div>`;
   r += `</div>`;
   document.getElementById('al-result').innerHTML = r;
