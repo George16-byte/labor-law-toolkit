@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>劳动法智能工具箱</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="劳动法工具箱">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2563eb">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { theme: { extend: { colors: { brand: { 50:'#eff6ff',100:'#dbeafe',200:'#bfdbfe',300:'#93c5fd',400:'#60a5fa',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8',800:'#1e40af',900:'#1e3a8a' } } } } }
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+  .result-box { animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .tab-active { border-bottom: 3px solid #2563eb; color: #2563eb; }
+  input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type=number] { -moz-appearance: textfield; }
+</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<header class="bg-white border-b border-gray-200 sticky top-0 z-10">
+  <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+    <div><h1 class="text-xl font-bold text-gray-900">⚖️ 劳动法智能工具箱</h1><p class="text-sm text-gray-500 mt-0.5">大连地区 · PWA离线可用 · 数据经官方核实</p></div>
+    <div class="text-xs text-gray-400">v2.0 PWA</div>
+  </div>
+</header>
+
+<div class="bg-white border-b border-gray-200 sticky top-[73px] z-10">
+  <div class="max-w-4xl mx-auto flex overflow-x-auto" id="tabBar">
+    <button class="tab-active px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors" data-tab="severance">💰 经济补偿</button>
+    <button class="px-5 py-3 text-sm font-medium text-gray-500 whitespace-nowrap transition-colors hover:text-gray-700" data-tab="injury">🏥 工伤赔偿</button>
+    <button class="px-5 py-3 text-sm font-medium text-gray-500 whitespace-nowrap transition-colors hover:text-gray-700" data-tab="overtime">⏰ 加班费</button>
+    <button class="px-5 py-3 text-sm font-medium text-gray-500 whitespace-nowrap transition-colors hover:text-gray-700" data-tab="annual">📅 年休假</button>
+    <button class="px-5 py-3 text-sm font-medium text-gray-500 whitespace-nowrap transition-colors hover:text-gray-700" data-tab="social">📊 社保参考</button>
+    <button class="px-5 py-3 text-sm font-medium text-gray-500 whitespace-nowrap transition-colors hover:text-gray-700" data-tab="noncompete">🔒 竞业限制</button>
+    <button class="px-5 py-3 text-sm font-medium text-gray-500 whitespace-nowrap transition-colors hover:text-gray-700" data-tab="maternity">🤰 三期权益</button>
+    <button class="px-5 py-3 text-sm font-medium text-gray-500 whitespace-nowrap transition-colors hover:text-gray-700" data-tab="sick">🏥 病假医疗期</button>
+    <button class="px-5 py-3 text-sm font-medium text-gray-500 whitespace-nowrap transition-colors hover:text-gray-700" data-tab="reference">📈 数据速查</button>
+  </div>
+</div>
+
+<main class="max-w-4xl mx-auto px-4 py-6">
+
+<!-- ==================== 经济补偿金 ==================== -->
+<div id="tab-severance" class="tab-content">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <h2 class="text-lg font-semibold text-gray-900 mb-1">经济补偿金 / 赔偿金计算器</h2>
+    <p class="text-sm text-gray-500 mb-6">《劳动合同法》第46、47、48、87条</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">入职日期</label><input type="date" id="sev-start" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">离职日期</label><input type="date" id="sev-end" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">离职前12个月平均工资（元）</label><input type="number" id="sev-salary" placeholder="例如：8000" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">当地上年度社平工资（元/月）</label><input type="number" id="sev-avg" placeholder="2024年大连：10223" value="10223" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"></div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div><label class="block text-sm font-medium text-gray-700 mb-2">解除方式</label>
+        <div class="space-y-2">
+          <label class="flex items-center gap-2 p-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50"><input type="radio" name="sev-type" value="legal" checked class="text-brand-600"><span class="text-sm">合法解除（N / N+1）</span></label>
+          <label class="flex items-center gap-2 p-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50"><input type="radio" name="sev-type" value="illegal" class="text-brand-600"><span class="text-sm">违法解除（2N 赔偿金）</span></label>
+        </div>
+      </div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-2">是否提前30天通知</label>
+        <div class="space-y-2">
+          <label class="flex items-center gap-2 p-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50"><input type="radio" name="sev-notice" value="yes" checked class="text-brand-600"><span class="text-sm">已提前30天书面通知</span></label>
+          <label class="flex items-center gap-2 p-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50"><input type="radio" name="sev-notice" value="no" class="text-brand-600"><span class="text-sm">未提前通知（+1个月代通知金）</span></label>
+        </div>
+      </div>
+    </div>
+    <button id="sev-calc" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-3 rounded-lg transition-colors text-sm">开始计算</button>
+    <div id="sev-result" class="hidden result-box mt-6 p-4 bg-brand-50 border border-brand-100 rounded-xl"></div>
+  </div>
+</div>
+
+<!-- ==================== 工伤赔偿 ==================== -->
+<div id="tab-injury" class="tab-content hidden">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <h2 class="text-lg font-semibold text-gray-900 mb-1">工伤赔偿计算器</h2>
+    <p class="text-sm text-gray-500 mb-6">《工伤保险条例》+ 辽宁省实施标准</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">本人受伤前12个月平均工资（元）</label><input type="number" id="inj-salary" placeholder="例如：7000" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">伤残等级</label><select id="inj-level" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none bg-white"><option value="">请选择</option><option value="1">一级</option><option value="2">二级</option><option value="3">三级</option><option value="4">四级</option><option value="5">五级</option><option value="6">六级</option><option value="7">七级</option><option value="8">八级</option><option value="9">九级</option><option value="10">十级</option></select></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">大连市上年度社平工资（元/月）</label><input type="number" id="inj-avg" placeholder="2024年：10223" value="10223" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">是否解除/终止劳动关系</label><select id="inj-end" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none bg-white"><option value="no">否（保留关系）</option><option value="yes">是（解除/终止）</option></select></div>
+    </div>
+    <button id="inj-calc" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-3 rounded-lg transition-colors text-sm">开始计算</button>
+    <div id="inj-result" class="hidden result-box mt-6 p-4 bg-brand-50 border border-brand-100 rounded-xl"></div>
+  </div>
+</div>
+
+<!-- ==================== 加班费 ==================== -->
+<div id="tab-overtime" class="tab-content hidden">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <h2 class="text-lg font-semibold text-gray-900 mb-1">加班费计算器</h2>
+    <p class="text-sm text-gray-500 mb-6">《劳动法》第44条</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">月基本工资（元）</label><input type="number" id="ot-salary" placeholder="例如：5000" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">月计薪天数</label><input type="number" id="ot-days" value="21.75" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none bg-gray-50"></div>
+    </div>
+    <div class="mb-6"><label class="block text-sm font-medium text-gray-700 mb-2">加班项目</label>
+      <div class="space-y-3">
+        <div class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg"><div class="flex-1"><div class="text-sm font-medium">工作日延时加班</div><div class="text-xs text-gray-500">150% 工资</div></div><input type="number" id="ot-workday" placeholder="小时" class="w-24 border border-gray-300 rounded-lg px-3 py-2 text-sm text-right focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"></div>
+        <div class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg"><div class="flex-1"><div class="text-sm font-medium">休息日加班（不能补休）</div><div class="text-xs text-gray-500">200% 工资</div></div><input type="number" id="ot-weekend" placeholder="小时" class="w-24 border border-gray-300 rounded-lg px-3 py-2 text-sm text-right focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"></div>
+        <div class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg"><div class="flex-1"><div class="text-sm font-medium">法定节假日加班</div><div class="text-xs text-gray-500">300% 工资</div></div><input type="number" id="ot-holiday" placeholder="小时" class="w-24 border border-gray-300 rounded-lg px-3 py-2 text-sm text-right focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"></div>
+      </div>
+    </div>
+    <button id="ot-calc" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-3 rounded-lg transition-colors text-sm">开始计算</button>
+    <div id="ot-result" class="hidden result-box mt-6 p-4 bg-brand-50 border border-brand-100 rounded-xl"></div>
+  </div>
+</div>
+
+<!-- ==================== 年休假 ==================== -->
+<div id="tab-annual" class="tab-content hidden">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <h2 class="text-lg font-semibold text-gray-900 mb-1">年休假折算计算器</h2>
+    <p class="text-sm text-gray-500 mb-6">《职工带薪年休假条例》+ 实施办法</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">累计工作年限</label><select id="al-years" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none bg-white"><option value="">请选择</option><option value="1-10">1年以上不满10年（5天/年）</option><option value="10-20">10年以上不满20年（10天/年）</option><option value="20+">20年以上（15天/年）</option></select></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">当年已工作天数</label><input type="number" id="al-worked" placeholder="例如：180" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">已休年假天数</label><input type="number" id="al-used" placeholder="例如：2" value="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">日工资（元，月工资÷21.75）</label><input type="number" id="al-daily" placeholder="例如：368" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"></div>
+    </div>
+    <button id="al-calc" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-3 rounded-lg transition-colors text-sm">开始计算</button>
+    <div id="al-result" class="hidden result-box mt-6 p-4 bg-brand-50 border border-brand-100 rounded-xl"></div>
+  </div>
+</div>
+
+<!-- ==================== 社保参考 ==================== -->
+<div id="tab-social" class="tab-content hidden">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <h2 class="text-lg font-semibold text-gray-900 mb-1">大连市社保缴费基数参考</h2>
+    <p class="text-sm text-gray-500 mb-6">2025年度标准，以官方最新公布为准</p>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr class="bg-gray-50"><th class="text-left px-4 py-3 font-medium text-gray-700">险种</th><th class="text-right px-4 py-3 font-medium text-gray-700">单位比例</th><th class="text-right px-4 py-3 font-medium text-gray-700">个人比例</th><th class="text-right px-4 py-3 font-medium text-gray-700">基数下限</th><th class="text-right px-4 py-3 font-medium text-gray-700">基数上限</th></tr></thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr><td class="px-4 py-3 font-medium">养老保险</td><td class="px-4 py-3 text-right">16%</td><td class="px-4 py-3 text-right">8%</td><td class="px-4 py-3 text-right">4,278</td><td class="px-4 py-3 text-right">21,387</td></tr>
+          <tr><td class="px-4 py-3 font-medium">医疗保险</td><td class="px-4 py-3 text-right">8%</td><td class="px-4 py-3 text-right">2%</td><td class="px-4 py-3 text-right">4,910</td><td class="px-4 py-3 text-right">24,549</td></tr>
+          <tr><td class="px-4 py-3 font-medium">失业保险</td><td class="px-4 py-3 text-right">0.5%</td><td class="px-4 py-3 text-right">0.5%</td><td class="px-4 py-3 text-right">4,278</td><td class="px-4 py-3 text-right">21,387</td></tr>
+          <tr><td class="px-4 py-3 font-medium">工伤保险</td><td class="px-4 py-3 text-right">0.4%-2.0%</td><td class="px-4 py-3 text-right text-gray-400">-</td><td class="px-4 py-3 text-right">4,278</td><td class="px-4 py-3 text-right">21,387</td></tr>
+          <tr><td class="px-4 py-3 font-medium">生育保险</td><td class="px-4 py-3 text-right">1.2%</td><td class="px-4 py-3 text-right text-gray-400">-</td><td class="px-4 py-3 text-right">4,910</td><td class="px-4 py-3 text-right">24,549</td></tr>
+          <tr><td class="px-4 py-3 font-medium">住房公积金</td><td class="px-4 py-3 text-right">5%-12%</td><td class="px-4 py-3 text-right">5%-12%</td><td class="px-4 py-3 text-right">2,100</td><td class="px-4 py-3 text-right">29,088</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="mt-6 p-4 bg-brand-50 border border-brand-100 rounded-xl">
+      <h3 class="text-sm font-semibold text-brand-800 mb-2">💡 社保费用试算</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div><label class="block text-xs font-medium text-gray-600 mb-1">月工资（元）</label><input type="number" id="si-salary" placeholder="例如：8000" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none bg-white"></div>
+        <div><label class="block text-xs font-medium text-gray-600 mb-1">公积金比例（%）</label><input type="number" id="si-fund" value="12" min="5" max="12" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none bg-white"></div>
+      </div>
+      <button id="si-calc" class="mt-4 bg-brand-600 hover:bg-brand-700 text-white font-medium py-2 px-6 rounded-lg transition-colors text-sm">试算</button>
+      <div id="si-result" class="hidden result-box mt-4"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 竞业限制 ==================== -->
+<div id="tab-noncompete" class="tab-content hidden">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <h2 class="text-lg font-semibold text-gray-900 mb-1">竞业限制补偿计算器</h2>
+    <p class="text-sm text-gray-500 mb-6">《劳动合同法》第23、24条</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">离职前12个月平均工资（元）</label><input type="number" id="nc-salary" placeholder="例如：12000" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">竞业限制期限（月）</label><input type="number" id="nc-months" placeholder="最长24个月" min="1" max="24" value="12" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">约定补偿比例（%）</label><input type="number" id="nc-rate" value="30" min="20" max="100" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"><p class="text-xs text-gray-400 mt-1">法定不低于30%</p></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">最低工资标准（元/月）</label><input type="number" id="nc-minwage" value="2230" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none bg-gray-50"><p class="text-xs text-gray-400 mt-1">大连2025：2230元</p></div>
+    </div>
+    <div class="mb-6 p-4 bg-amber-50 border border-amber-100 rounded-xl">
+      <h3 class="text-sm font-semibold text-amber-800 mb-2">📋 竞业限制要点</h3>
+      <ul class="text-xs text-amber-700 space-y-1">
+        <li>• 适用人员：高管、高技、其他负有保密义务者</li>
+        <li>• 期限上限：不得超过<strong>2年</strong></li>
+        <li>• 补偿下限：不低于月平均工资<strong>30%</strong>，且不低于最低工资</li>
+        <li>• 用人单位3个月未付补偿，劳动者可请求解除</li>
+        <li>• 用人单位单方解除需额外付<strong>3个月</strong>补偿</li>
+      </ul>
+    </div>
+    <button id="nc-calc" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-3 rounded-lg transition-colors text-sm">开始计算</button>
+    <div id="nc-result" class="hidden result-box mt-6 p-4 bg-brand-50 border border-brand-100 rounded-xl"></div>
+  </div>
+</div>
+
+<!-- ==================== 三期权益 ==================== -->
+<div id="tab-maternity" class="tab-content hidden">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <h2 class="text-lg font-semibold text-gray-900 mb-1">三期（孕期/产期/哺乳期）权益计算器</h2>
+    <p class="text-sm text-gray-500 mb-6">《女职工劳动保护特别规定》+ 辽宁省计划生育条例</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">单位上年度月均工资（元）</label><input type="number" id="mat-avg" placeholder="津贴计算基数" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">本人产假前月工资（元）</label><input type="number" id="mat-salary" placeholder="差额补足对比" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">分娩方式</label><select id="mat-birth" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none bg-white"><option value="normal">顺产</option><option value="difficult">难产</option></select></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">多胞胎</label><select id="mat-multi" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none bg-white"><option value="1">单胎</option><option value="2">双胞胎</option><option value="3">三胞胎</option></select></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">流产情况</label><select id="mat-miscarry" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none bg-white"><option value="none">无（正常生育）</option><option value="lt4m">不满4个月流产</option><option value="gte4m">满4个月流产</option></select></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">独生子女证（2016年前）</label><select id="mat-only" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none bg-white"><option value="no">否</option><option value="yes">是</option></select></div>
+    </div>
+    <button id="mat-calc" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-3 rounded-lg transition-colors text-sm">开始计算</button>
+    <div id="mat-result" class="hidden result-box mt-6 p-4 bg-brand-50 border border-brand-100 rounded-xl"></div>
+    <div class="mt-6 p-4 bg-pink-50 border border-pink-100 rounded-xl">
+      <h3 class="text-sm font-semibold text-pink-800 mb-2">📋 三期女职工特殊保护</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-pink-700">
+        <div class="p-2 bg-white/60 rounded"><span class="font-medium">🚫 禁止解除</span><p>孕/产/哺乳期内不得依40/41条解除</p></div>
+        <div class="p-2 bg-white/60 rounded"><span class="font-medium">⏰ 工间休息</span><p>孕7月+每天1小时休息</p></div>
+        <div class="p-2 bg-white/60 rounded"><span class="font-medium">🤱 哺乳时间</span><p>婴儿1周岁内每天1小时</p></div>
+        <div class="p-2 bg-white/60 rounded"><span class="font-medium">📅 产检假</span><p>计入劳动时间不扣工资</p></div>
+        <div class="p-2 bg-white/60 rounded"><span class="font-medium">👨 配偶护理假</span><p>辽宁：<strong>15天</strong></p></div>
+        <div class="p-2 bg-white/60 rounded"><span class="font-medium">🏥 辽宁产假</span><p>国家98天+辽宁60天=<strong>158天</strong></p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 病假医疗期 ==================== -->
+<div id="tab-sick" class="tab-content hidden">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <h2 class="text-lg font-semibold text-gray-900 mb-1">病假工资 & 医疗期计算器</h2>
+    <p class="text-sm text-gray-500 mb-6">《企业职工患病或非因工负伤医疗期规定》+ 辽宁省标准</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">实际工作年限</label><select id="sk-total-years" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none bg-white"><option value="">请选择</option><option value="lt10">不满10年</option><option value="gte10">10年以上</option></select></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">本单位工作年限</label><select id="sk-company-years" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none bg-white"><option value="">请先选择总工龄</option></select></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">本人月工资（元）</label><input type="number" id="sk-salary" placeholder="例如：6000" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">本单位工龄（病假比例）</label><select id="sk-seniority" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none bg-white"><option value="lt2">不满2年（60%）</option><option value="2-4">2-4年（70%）</option><option value="4-6">4-6年（80%）</option><option value="6-8">6-8年（90%）</option><option value="gte8">8年以上（100%）</option></select></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">请病假天数</label><input type="number" id="sk-days" placeholder="例如：30" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">最低工资（元/月）</label><input type="number" id="sk-minwage" value="2230" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none bg-gray-50"><p class="text-xs text-gray-400 mt-1">大连2025：2230</p></div>
+    </div>
+    <button id="sk-calc" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-3 rounded-lg transition-colors text-sm">开始计算</button>
+    <div id="sk-result" class="hidden result-box mt-6 p-4 bg-brand-50 border border-brand-100 rounded-xl"></div>
+    <div class="mt-6 p-4 bg-purple-50 border border-purple-100 rounded-xl">
+      <h3 class="text-sm font-semibold text-purple-800 mb-2">📋 医疗期速查</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs">
+          <thead><tr class="bg-purple-100/50"><th class="text-left px-3 py-2 font-medium">总工龄</th><th class="text-left px-3 py-2 font-medium">本单位</th><th class="text-center px-3 py-2 font-medium">医疗期</th><th class="text-center px-3 py-2 font-medium">累计期</th></tr></thead>
+          <tbody class="divide-y divide-purple-100">
+            <tr><td class="px-3 py-2">＜10年</td><td class="px-3 py-2">＜5年</td><td class="px-3 py-2 text-center font-bold">3个月</td><td class="px-3 py-2 text-center">6个月内</td></tr>
+            <tr><td class="px-3 py-2">＜10年</td><td class="px-3 py-2">≥5年</td><td class="px-3 py-2 text-center font-bold">6个月</td><td class="px-3 py-2 text-center">12个月内</td></tr>
+            <tr><td class="px-3 py-2">≥10年</td><td class="px-3 py-2">＜5年</td><td class="px-3 py-2 text-center font-bold">6个月</td><td class="px-3 py-2 text-center">12个月内</td></tr>
+            <tr><td class="px-3 py-2">≥10年</td><td class="px-3 py-2">5-10年</td><td class="px-3 py-2 text-center font-bold">9个月</td><td class="px-3 py-2 text-center">15个月内</td></tr>
+            <tr><td class="px-3 py-2">≥10年</td><td class="px-3 py-2">10-15年</td><td class="px-3 py-2 text-center font-bold">12个月</td><td class="px-3 py-2 text-center">18个月内</td></tr>
+            <tr><td class="px-3 py-2">≥10年</td><td class="px-3 py-2">15-20年</td><td class="px-3 py-2 text-center font-bold">18个月</td><td class="px-3 py-2 text-center">24个月内</td></tr>
+            <tr><td class="px-3 py-2">≥10年</td><td class="px-3 py-2">≥20年</td><td class="px-3 py-2 text-center font-bold">24个月</td><td class="px-3 py-2 text-center">30个月内</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-3 space-y-1 text-xs text-purple-700">
+        <p>• 病假工资下限：不低于最低工资的80%</p>
+        <p>• 辽宁省：6个月内按工龄分档60%-100%，超6月疾病救济费</p>
+        <p>• 医疗期满解除：不能从事原/另行安排工作 → N+1</p>
+        <p>• 特殊疾病（癌症/精神病等）可延长医疗期</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 数据速查 ==================== -->
+<div id="tab-reference" class="tab-content hidden">
+  <div class="space-y-6">
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-1">📈 大连市历年社平工资（在岗职工月平均）</h2>
+      <p class="text-sm text-gray-500 mb-2">数据来源：大连市统计局年度公报，经交叉核对</p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead><tr class="bg-gray-50"><th class="text-left px-4 py-3 font-medium">年度</th><th class="text-right px-4 py-3 font-medium">年平均（元）</th><th class="text-right px-4 py-3 font-medium">月平均（元）</th><th class="text-right px-4 py-3 font-medium">3倍封顶</th><th class="text-right px-4 py-3 font-medium">用于</th></tr></thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr class="bg-blue-50"><td class="px-4 py-3 font-medium">2024</td><td class="px-4 py-3 text-right">122,671</td><td class="px-4 py-3 text-right font-bold text-brand-700">10,223</td><td class="px-4 py-3 text-right">30,668</td><td class="px-4 py-3 text-right text-gray-500">2025年</td></tr>
+            <tr><td class="px-4 py-3">2023</td><td class="px-4 py-3 text-right">119,793</td><td class="px-4 py-3 text-right font-bold">9,983</td><td class="px-4 py-3 text-right">29,948</td><td class="px-4 py-3 text-right text-gray-500">2024年</td></tr>
+            <tr><td class="px-4 py-3">2022</td><td class="px-4 py-3 text-right">113,945</td><td class="px-4 py-3 text-right font-bold">9,495</td><td class="px-4 py-3 text-right">28,486</td><td class="px-4 py-3 text-right text-gray-500">2023年</td></tr>
+            <tr><td class="px-4 py-3">2021</td><td class="px-4 py-3 text-right">107,390</td><td class="px-4 py-3 text-right font-bold">8,949</td><td class="px-4 py-3 text-right">26,848</td><td class="px-4 py-3 text-right text-gray-500">2022年</td></tr>
+            <tr><td class="px-4 py-3">2020</td><td class="px-4 py-3 text-right">98,812</td><td class="px-4 py-3 text-right font-bold">8,234</td><td class="px-4 py-3 text-right">24,703</td><td class="px-4 py-3 text-right text-gray-500">2021年</td></tr>
+            <tr><td class="px-4 py-3">2019</td><td class="px-4 py-3 text-right">95,542</td><td class="px-4 py-3 text-right font-bold">7,962</td><td class="px-4 py-3 text-right">23,886</td><td class="px-4 py-3 text-right text-gray-500">2020年</td></tr>
+            <tr><td class="px-4 py-3">2018</td><td class="px-4 py-3 text-right">87,592</td><td class="px-4 py-3 text-right font-bold">7,299</td><td class="px-4 py-3 text-right">21,898</td><td class="px-4 py-3 text-right text-gray-500">2019年</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-3 p-3 bg-yellow-50 border border-yellow-100 rounded-lg text-xs text-yellow-700">
+        <strong>数据来源核实：</strong>2024年数据来源大连本地宝转载统计局公报（2025.8.15）；2023年来源大连市统计局（2024.7.11）及里和格律所转载；2022年来源中国四达；2021年来源人社通/知乎引用；2020年来源搜狐转载；2019年来源大连本地宝；2018年来源大连新闻。口径均为"城镇非私营单位在岗职工"。
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-1">💰 大连市最低工资标准</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead><tr class="bg-gray-50"><th class="text-left px-4 py-3 font-medium">执行时间</th><th class="text-right px-4 py-3 font-medium">市内区（元/月）</th><th class="text-right px-4 py-3 font-medium">北三市（元/月）</th><th class="text-right px-4 py-3 font-medium">小时（元）</th></tr></thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr class="bg-blue-50"><td class="px-4 py-3 font-medium">2024.5.1起</td><td class="px-4 py-3 text-right text-brand-700 font-medium">2,230</td><td class="px-4 py-3 text-right">1,900</td><td class="px-4 py-3 text-right">22.0</td></tr>
+            <tr><td class="px-4 py-3">2021.11.1</td><td class="px-4 py-3 text-right">1,910</td><td class="px-4 py-3 text-right">1,710</td><td class="px-4 py-3 text-right">19.2</td></tr>
+            <tr><td class="px-4 py-3">2019.11.1</td><td class="px-4 py-3 text-right">1,810</td><td class="px-4 py-3 text-right">1,610</td><td class="px-4 py-3 text-right">18.3</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-xs text-gray-400 mt-2">市内区：中山、西岗、沙河口、甘井子、旅顺口、金州、长海 | 北三市：普兰店、瓦房店、庄河</p>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-1">🕯️ 全国一次性工亡补助金</h2>
+      <p class="text-sm text-gray-500 mb-4">上年度全国城镇居民人均可支配收入 × 20倍</p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead><tr class="bg-gray-50"><th class="text-left px-4 py-3 font-medium">适用年度</th><th class="text-right px-4 py-3 font-medium">可支配收入（元）</th><th class="text-right px-4 py-3 font-medium">工亡补助金（元）</th><th class="text-right px-4 py-3 font-medium">数据年份</th></tr></thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr class="bg-blue-50"><td class="px-4 py-3 font-medium">2026</td><td class="px-4 py-3 text-right">56,502</td><td class="px-4 py-3 text-right text-red-600 font-bold">1,130,040</td><td class="px-4 py-3 text-right text-gray-500">2025年度</td></tr>
+            <tr><td class="px-4 py-3">2025</td><td class="px-4 py-3 text-right">54,188</td><td class="px-4 py-3 text-right text-red-600">1,083,760</td><td class="px-4 py-3 text-right text-gray-500">2024年度</td></tr>
+            <tr><td class="px-4 py-3">2024</td><td class="px-4 py-3 text-right">51,821</td><td class="px-4 py-3 text-right">1,036,420</td><td class="px-4 py-3 text-right text-gray-500">2023年度</td></tr>
+            <tr><td class="px-4 py-3">2023</td><td class="px-4 py-3 text-right">49,283</td><td class="px-4 py-3 text-right">985,660</td><td class="px-4 py-3 text-right text-gray-500">2022年度</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-1">🧮 劳动法常用常数</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+        <div class="p-3 bg-gray-50 rounded-lg"><span class="font-medium">月计薪天数</span><span class="float-right text-brand-700 font-bold">21.75</span></div>
+        <div class="p-3 bg-gray-50 rounded-lg"><span class="font-medium">月工作日</span><span class="float-right text-brand-700 font-bold">20.83</span></div>
+        <div class="p-3 bg-gray-50 rounded-lg"><span class="font-medium">标准工时</span><span class="float-right text-brand-700 font-bold">8h/天 40h/周</span></div>
+        <div class="p-3 bg-gray-50 rounded-lg"><span class="font-medium">加班倍数</span><span class="float-right text-xs">1.5x / 2x / 3x</span></div>
+        <div class="p-3 bg-gray-50 rounded-lg"><span class="font-medium">补偿封顶</span><span class="float-right text-xs">社平3倍 × 12年</span></div>
+        <div class="p-3 bg-gray-50 rounded-lg"><span class="font-medium">竞业限制</span><span class="float-right text-xs">最长24个月</span></div>
+        <div class="p-3 bg-gray-50 rounded-lg"><span class="font-medium">试用期上限</span><span class="float-right text-xs">1月(&lt;3月) / 6月(≥3年)</span></div>
+        <div class="p-3 bg-gray-50 rounded-lg"><span class="font-medium">辽宁产假</span><span class="float-right text-xs">98+60=<strong>158天</strong></span></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-1">🏥 工伤待遇速查</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead><tr class="bg-gray-50"><th class="text-center px-2 py-3 font-medium">级</th><th class="text-center px-3 py-3 font-medium">一次性伤残补助</th><th class="text-center px-3 py-3 font-medium">伤残津贴</th><th class="text-center px-3 py-3 font-medium">医疗补助金</th><th class="text-center px-3 py-3 font-medium">就业补助金</th></tr></thead>
+          <tbody class="divide-y divide-gray-100 text-center">
+            <tr><td class="py-3 font-bold">一</td><td>27个月工资</td><td>90%</td><td class="text-gray-400">—</td><td class="text-gray-400">—</td></tr>
+            <tr><td class="py-3 font-bold">二</td><td>25个月工资</td><td>85%</td><td class="text-gray-400">—</td><td class="text-gray-400">—</td></tr>
+            <tr><td class="py-3 font-bold">三</td><td>23个月工资</td><td>80%</td><td class="text-gray-400">—</td><td class="text-gray-400">—</td></tr>
+            <tr><td class="py-3 font-bold">四</td><td>21个月工资</td><td>75%</td><td class="text-gray-400">—</td><td class="text-gray-400">—</td></tr>
+            <tr><td class="py-3 font-bold">五</td><td>18个月工资</td><td>70%</td><td>18个月社平</td><td>28个月社平</td></tr>
+            <tr><td class="py-3 font-bold">六</td><td>16个月工资</td><td>60%</td><td>16个月社平</td><td>24个月社平</td></tr>
+            <tr><td class="py-3 font-bold">七</td><td>13个月工资</td><td class="text-gray-400">—</td><td>13个月社平</td><td>20个月社平</td></tr>
+            <tr><td class="py-3 font-bold">八</td><td>11个月工资</td><td class="text-gray-400">—</td><td>11个月社平</td><td>16个月社平</td></tr>
+            <tr><td class="py-3 font-bold">九</td><td>9个月工资</td><td class="text-gray-400">—</td><td>9个月社平</td><td>12个月社平</td></tr>
+            <tr><td class="py-3 font-bold">十</td><td>7个月工资</td><td class="text-gray-400">—</td><td>7个月社平</td><td>8个月社平</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-1">⚡ 经济补偿速查</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead><tr class="bg-gray-50"><th class="text-left px-4 py-3 font-medium">情形</th><th class="text-center px-4 py-3 font-medium">标准</th><th class="text-left px-4 py-3 font-medium">依据</th></tr></thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr><td class="px-4 py-3">协商一致解除</td><td class="px-4 py-3 text-center text-brand-700 font-bold">N</td><td class="px-4 py-3 text-gray-500">36+46条</td></tr>
+            <tr><td class="px-4 py-3">劳动者被迫解除</td><td class="px-4 py-3 text-center text-brand-700 font-bold">N</td><td class="px-4 py-3 text-gray-500">38+46条</td></tr>
+            <tr><td class="px-4 py-3">无过失性辞退</td><td class="px-4 py-3 text-center text-brand-700 font-bold">N+1</td><td class="px-4 py-3 text-gray-500">40+46条</td></tr>
+            <tr><td class="px-4 py-3">经济性裁员</td><td class="px-4 py-3 text-center text-brand-700 font-bold">N</td><td class="px-4 py-3 text-gray-500">41+46条</td></tr>
+            <tr><td class="px-4 py-3">合同到期不续签</td><td class="px-4 py-3 text-center text-brand-700 font-bold">N</td><td class="px-4 py-3 text-gray-500">44+46条</td></tr>
+            <tr class="bg-red-50"><td class="px-4 py-3 font-medium">违法解除</td><td class="px-4 py-3 text-center text-red-600 font-bold">2N</td><td class="px-4 py-3 text-gray-500">87条</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</main>
+
+<footer class="max-w-4xl mx-auto px-4 py-8 text-center text-xs text-gray-400">
+  <p>⚠️ 计算结果仅供参考，不构成法律意见。具体案件请咨询专业律师。</p>
+  <p class="mt-1">数据经大连市统计局公报及国家统计局交叉核对。以官方最新公布为准。</p>
+</footer>
+
+<script>
+// ===== Tab =====
+document.querySelectorAll('#tabBar button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#tabBar button').forEach(b => b.className = 'px-5 py-3 text-sm font-medium text-gray-500 whitespace-nowrap transition-colors hover:text-gray-700');
+    btn.className = 'tab-active px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors';
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+    document.getElementById('tab-' + btn.dataset.tab).classList.remove('hidden');
+  });
+});
+function fmt(n) { return n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+// ===== 经济补偿金 =====
+document.getElementById('sev-calc').addEventListener('click', () => {
+  const start = document.getElementById('sev-start').value;
+  const end = document.getElementById('sev-end').value;
+  const salary = parseFloat(document.getElementById('sev-salary').value);
+  const avg = parseFloat(document.getElementById('sev-avg').value) || 10223;
+  const isIllegal = document.querySelector('input[name="sev-type"]:checked').value === 'illegal';
+  const noNotice = document.querySelector('input[name="sev-notice"]:checked').value === 'no';
+  if (!start || !end || !salary) { alert('请填写完整信息'); return; }
+  const s = new Date(start), e = new Date(end);
+  let years = (e - s) / (365.25 * 24 * 3600 * 1000);
+  let nYears = 0;
+  const fullYears = Math.floor(years);
+  const remainder = years - fullYears;
+  nYears = remainder < 0.5 ? fullYears : fullYears + 1;
+  const cap = avg * 3;
+  const baseSalary = Math.min(salary, cap);
+  const cappedYears = Math.min(nYears, 12);
+  let r = '';
+  if (isIllegal) {
+    const amt = baseSalary * cappedYears * 2;
+    r = `<div class="space-y-2 text-sm"><div class="flex justify-between"><span class="text-gray-600">工作年限</span><span class="font-medium">${fullYears}年${Math.round(remainder*12)}个月 → ${nYears}个月</span></div><div class="flex justify-between"><span class="text-gray-600">月工资基数</span><span class="font-medium">${fmt(baseSalary)}${salary>cap?'（社平3倍封顶）':''}</span></div><div class="flex justify-between"><span class="text-gray-600">计算方式</span><span class="font-medium text-red-600">违法解除 ×2倍</span></div><div class="border-t pt-2 mt-2 flex justify-between text-base"><span class="font-semibold">赔偿金（2N）</span><span class="font-bold text-red-600">${fmt(amt)} 元</span></div></div>`;
+  } else {
+    let total = baseSalary * cappedYears, np = 0;
+    if (noNotice) { np = baseSalary; total += np; }
+    r = `<div class="space-y-2 text-sm"><div class="flex justify-between"><span class="text-gray-600">工作年限</span><span class="font-medium">${fullYears}年${Math.round(remainder*12)}个月 → ${nYears}个月</span></div><div class="flex justify-between"><span class="text-gray-600">月工资基数</span><span class="font-medium">${fmt(baseSalary)}${salary>cap?'（社平3倍封顶）':''}</span></div><div class="flex justify-between"><span class="text-gray-600">经济补偿（N）</span><span class="font-medium">${fmt(baseSalary*cappedYears)} 元</span></div>${noNotice?`<div class="flex justify-between"><span class="text-gray-600">代通知金（+1）</span><span class="font-medium">${fmt(np)} 元</span></div>`:''}<div class="border-t pt-2 mt-2 flex justify-between text-base"><span class="font-semibold">合计${noNotice?'（N+1）':'（N）'}</span><span class="font-bold text-brand-700">${fmt(total)} 元</span></div></div>`;
+  }
+  document.getElementById('sev-result').innerHTML = r;
+  document.getElementById('sev-result').classList.remove('hidden');
+});
+
+// ===== 工伤赔偿 =====
+document.getElementById('inj-calc').addEventListener('click', () => {
+  const salary = parseFloat(document.getElementById('inj-salary').value);
+  const level = parseInt(document.getElementById('inj-level').value);
+  const avg = parseFloat(document.getElementById('inj-avg').value) || 10223;
+  const endRel = document.getElementById('inj-end').value === 'yes';
+  if (!salary || !level) { alert('请填写完整信息'); return; }
+  const bm = {1:27,2:25,3:23,4:21,5:18,6:16,7:13,8:11,9:9,10:7};
+  const mm = {5:18,6:16,7:13,8:11,9:9,10:7};
+  const em = {5:28,6:24,7:20,8:16,9:12,10:8};
+  const bonus = salary * bm[level];
+  let medical = 0, employment = 0;
+  if (endRel && level >= 5 && level <= 10) { medical = avg * (mm[level]||0); employment = avg * (em[level]||0); }
+  const dr = {1:0.9,2:0.85,3:0.8,4:0.75};
+  let ma = 0;
+  if (level <= 4) { ma = Math.max(salary * dr[level], avg * 0.6); }
+  let h = `<div class="space-y-2 text-sm"><div class="flex justify-between"><span class="text-gray-600">伤残等级</span><span class="font-medium">${level}级</span></div><div class="flex justify-between"><span class="text-gray-600">一次性伤残补助金</span><span class="font-medium text-brand-700">${fmt(bonus)} 元（${bm[level]}个月）</span></div>`;
+  if (endRel && medical > 0) { h += `<div class="flex justify-between"><span class="text-gray-600">医疗补助金</span><span class="font-medium">${fmt(medical)} 元</span></div><div class="flex justify-between"><span class="text-gray-600">就业补助金</span><span class="font-medium">${fmt(employment)} 元</span></div>`; }
+  if (ma > 0) h += `<div class="flex justify-between"><span class="text-gray-600">伤残津贴（按月）</span><span class="font-medium">${fmt(ma)} 元/月</span></div>`;
+  let total = bonus + medical + employment;
+  if (endRel && level >= 5) h += `<div class="border-t pt-2 mt-2 flex justify-between text-base"><span class="font-semibold">三项合计</span><span class="font-bold text-brand-700">${fmt(total)} 元</span></div>`;
+  else if (level <= 4) h += `<div class="border-t pt-2 text-sm text-gray-500">1-4级保留劳动关系，按月领伤残津贴</div>`;
+  else h += `<div class="border-t pt-2 text-sm text-gray-500">未解除劳动关系，医疗/就业补助金暂不支付</div>`;
+  h += `</div>`;
+  document.getElementById('inj-result').innerHTML = h;
+  document.getElementById('inj-result').classList.remove('hidden');
+});
+
+// ===== 加班费 =====
+document.getElementById('ot-calc').addEventListener('click', () => {
+  const salary = parseFloat(document.getElementById('ot-salary').value);
+  const days = parseFloat(document.getElementById('ot-days').value) || 21.75;
+  const wd = parseFloat(document.getElementById('ot-workday').value) || 0;
+  const we = parseFloat(document.getElementById('ot-weekend').value) || 0;
+  const ho = parseFloat(document.getElementById('ot-holiday').value) || 0;
+  if (!salary) { alert('请填写月工资'); return; }
+  const h = salary / days / 8;
+  const wp = h * 1.5 * wd, wep = h * 2 * we, hop = h * 3 * ho;
+  let r = `<div class="space-y-2 text-sm"><div class="flex justify-between"><span class="text-gray-600">小时工资</span><span class="font-medium">${fmt(h)} 元/h</span></div>`;
+  if (wd) r += `<div class="flex justify-between"><span>工作日 ×${wd}h（1.5x）</span><span class="font-medium">${fmt(wp)} 元</span></div>`;
+  if (we) r += `<div class="flex justify-between"><span>休息日 ×${we}h（2x）</span><span class="font-medium">${fmt(wep)} 元</span></div>`;
+  if (ho) r += `<div class="flex justify-between"><span>节假日 ×${ho}h（3x）</span><span class="font-medium">${fmt(hop)} 元</span></div>`;
+  r += `<div class="border-t pt-2 mt-2 flex justify-between text-base"><span class="font-semibold">合计</span><span class="font-bold text-brand-700">${fmt(wp+wep+hop)} 元</span></div></div>`;
+  document.getElementById('ot-result').innerHTML = r;
+  document.getElementById('ot-result').classList.remove('hidden');
+});
+
+// ===== 年休假 =====
+document.getElementById('al-calc').addEventListener('click', () => {
+  const range = document.getElementById('al-years').value;
+  const worked = parseFloat(document.getElementById('al-worked').value);
+  const used = parseFloat(document.getElementById('al-used').value) || 0;
+  const daily = parseFloat(document.getElementById('al-daily').value);
+  if (!range || !worked) { alert('请填写完整信息'); return; }
+  const ad = range === '1-10' ? 5 : range === '10-20' ? 10 : 15;
+  const pr = Math.floor(ad * worked / 365);
+  const rem = Math.max(0, pr - used);
+  let r = `<div class="space-y-2 text-sm"><div class="flex justify-between"><span>全年应休</span><span class="font-medium">${ad} 天</span></div><div class="flex justify-between"><span>当年已工作</span><span class="font-medium">${worked} 天</span></div><div class="flex justify-between"><span>折算应休</span><span class="font-medium">${pr} 天</span></div><div class="flex justify-between"><span>已休</span><span class="font-medium">${used} 天</span></div><div class="flex justify-between"><span>剩余</span><span class="font-medium text-brand-700">${rem} 天</span></div>`;
+  if (daily && rem > 0) r += `<div class="border-t pt-2 mt-2 flex justify-between text-base"><span class="font-semibold">未休补偿（额外200%）</span><span class="font-bold text-brand-700">${fmt(rem*daily*2)} 元</span></div>`;
+  r += `</div>`;
+  document.getElementById('al-result').innerHTML = r;
+  document.getElementById('al-result').classList.remove('hidden');
+});
+
+// ===== 社保试算 =====
+document.getElementById('si-calc').addEventListener('click', () => {
+  const salary = parseFloat(document.getElementById('si-salary').value);
+  const fr = parseFloat(document.getElementById('si-fund').value) || 12;
+  if (!salary) { alert('请填写月工资'); return; }
+  const pb = Math.max(4278, Math.min(21387, salary)), mb = Math.max(4910, Math.min(24549, salary)), fb = Math.max(2100, Math.min(29088, salary));
+  const p = { pp: pb*0.08, mp: mb*0.02, up: pb*0.005, fp: fb*fr/100 };
+  const pt = p.pp + p.mp + p.up + p.fp;
+  const c = { pc: pb*0.16, mc: mb*0.08, uc: pb*0.005, ic: pb*0.007, mc2: mb*0.012, fc: fb*fr/100 };
+  const ct = c.pc + c.mc + c.uc + c.ic + c.mc2 + c.fc;
+  let r = `<div class="space-y-2 text-sm"><div class="text-xs text-gray-500 mb-1">基数：养老${fmt(pb)} / 医疗${fmt(mb)} / 公积金${fmt(fb)}</div><div class="flex justify-between"><span>个人缴纳</span><span class="font-bold text-red-600">${fmt(pt)} 元</span></div><div class="flex justify-between"><span>单位缴纳</span><span class="font-bold text-brand-700">${fmt(ct)} 元</span></div><div class="border-t pt-2 mt-2 flex justify-between text-base"><span class="font-semibold">到手（税前-社保）</span><span class="font-bold text-green-600">${fmt(salary-pt)} 元</span></div></div>`;
+  document.getElementById('si-result').innerHTML = r;
+  document.getElementById('si-result').classList.remove('hidden');
+});
+
+// ===== 竞业限制 =====
+document.getElementById('nc-calc').addEventListener('click', () => {
+  const salary = parseFloat(document.getElementById('nc-salary').value);
+  const months = parseInt(document.getElementById('nc-months').value) || 12;
+  const rate = parseFloat(document.getElementById('nc-rate').value) || 30;
+  const mw = parseFloat(document.getElementById('nc-minwage').value) || 2230;
+  if (!salary) { alert('请填写月工资'); return; }
+  if (months > 24) { alert('最长24个月'); return; }
+  const mc = Math.max(salary * rate / 100, mw);
+  const isMin = salary * rate / 100 < mw;
+  let r = `<div class="space-y-2 text-sm"><div class="flex justify-between"><span>月工资基数</span><span class="font-medium">${fmt(salary)}</span></div><div class="flex justify-between"><span>补偿比例</span><span class="font-medium">${rate}%</span></div><div class="flex justify-between"><span>计算月补偿</span><span class="font-medium">${fmt(salary*rate/100)}${isMin?' < 最低工资':''}</span></div>`;
+  if (isMin) r += `<div class="text-amber-600 text-xs">按最低工资${fmt(mw)}元执行</div>`;
+  r += `<div class="border-t pt-2 mt-2"><div class="flex justify-between"><span class="font-semibold">每月应付</span><span class="font-bold text-brand-700">${fmt(mc)} 元</span></div><div class="flex justify-between"><span class="font-semibold">期间总计</span><span class="font-bold text-brand-700">${fmt(mc*months)} 元</span></div></div></div>`;
+  document.getElementById('nc-result').innerHTML = r;
+  document.getElementById('nc-result').classList.remove('hidden');
+});
+
+// ===== 三期权益 =====
+document.getElementById('mat-calc').addEventListener('click', () => {
+  const avg = parseFloat(document.getElementById('mat-avg').value);
+  const salary = parseFloat(document.getElementById('mat-salary').value);
+  const birth = document.getElementById('mat-birth').value;
+  const multi = parseInt(document.getElementById('mat-multi').value);
+  const miscarry = document.getElementById('mat-miscarry').value;
+  const only = document.getElementById('mat-only').value;
+  if (!avg && !salary) { alert('请至少填写一项工资数据'); return; }
+  let td = 0, dl = [];
+  if (miscarry === 'none') {
+    td = 158; dl.push('国家98天 + 辽宁60天');
+    if (birth === 'difficult') { td += 15; dl.push('难产 +15天'); }
+    if (multi > 1) { td += 15 * (multi - 1); dl.push(`×${multi} +${15*(multi-1)}天`); }
+    if (only === 'yes') { td += 60; dl.push('独生子女 +60天'); }
+  } else { td = miscarry === 'lt4m' ? 15 : 42; dl.push(miscarry === 'lt4m' ? '不满4月流产：15天' : '满4月流产：42天'); }
+  let r = `<div class="space-y-2 text-sm"><div class="font-medium text-brand-800">产假天数</div>`;
+  dl.forEach(d => r += `<div class="text-xs text-gray-600 ml-3">${d}</div>`);
+  r += `<div class="flex justify-between border-t pt-2"><span class="font-semibold">合计</span><span class="font-bold text-brand-700 text-base">${td} 天</span></div>`;
+  if (avg) {
+    const al = avg / 30 * td;
+    r += `<div class="border-t pt-2 mt-2"><span class="font-medium text-brand-800">生育津贴</span></div><div class="flex justify-between"><span>基数</span><span>${fmt(avg)} 元</span></div><div class="flex justify-between"><span>总额</span><span class="font-bold text-brand-700">${fmt(al)} 元</span></div>`;
+    if (salary && salary > avg) { r += `<div class="text-amber-600 text-xs">本人工资高于单位均值，差额约${fmt((salary-avg)/30*td)}元由单位补足</div>`; }
+  }
+  r += `</div>`;
+  document.getElementById('mat-result').innerHTML = r;
+  document.getElementById('mat-result').classList.remove('hidden');
+});
+
+// ===== 病假医疗期 =====
+document.getElementById('sk-total-years').addEventListener('change', function() {
+  const sel = document.getElementById('sk-company-years');
+  sel.innerHTML = '<option value="">请选择</option>';
+  if (this.value === 'lt10') sel.innerHTML += '<option value="lt5">不满5年</option><option value="gte5">5年以上</option>';
+  else if (this.value === 'gte10') sel.innerHTML += '<option value="lt5">不满5年</option><option value="5-10">5-10年</option><option value="10-15">10-15年</option><option value="15-20">15-20年</option><option value="gte20">20年以上</option>';
+});
+document.getElementById('sk-calc').addEventListener('click', () => {
+  const total = document.getElementById('sk-total-years').value;
+  const company = document.getElementById('sk-company-years').value;
+  const salary = parseFloat(document.getElementById('sk-salary').value);
+  const seniority = document.getElementById('sk-seniority').value;
+  const days = parseFloat(document.getElementById('sk-days').value);
+  const mw = parseFloat(document.getElementById('sk-minwage').value) || 2230;
+  if (!total || !company || !salary || !days) { alert('请填写完整信息'); return; }
+  const medMap = { 'lt10-lt5':3,'lt10-gte5':6,'gte10-lt5':6,'gte10-5-10':9,'gte10-10-15':12,'gte10-15-20':18,'gte10-gte20':24 };
+  const accMap = { 'lt10-lt5':'6个月','lt10-gte5':'12个月','gte10-lt5':'12个月','gte10-5-10':'15个月','gte10-10-15':'18个月','gte10-15-20':'24个月','gte10-gte20':'30个月' };
+  const rm = { 'lt2':0.6,'2-4':0.7,'4-6':0.8,'6-8':0.9,'gte8':1.0 };
+  let rate = rm[seniority] || 0.6;
+  let dp = Math.max(salary / 21.75 * rate, mw * 0.8 / 21.75);
+  let r = `<div class="space-y-2 text-sm"><div class="flex justify-between"><span>医疗期</span><span class="font-bold text-purple-700">${medMap[total+'-'+company]||0} 个月</span></div><div class="flex justify-between"><span>累计病休</span><span>${accMap[total+'-'+company]||''}</span></div><div class="flex justify-between"><span>病假比例</span><span>${(rate*100).toFixed(0)}%</span></div><div class="flex justify-between"><span>日病假工资</span><span>${fmt(dp)} 元</span></div><div class="border-t pt-2 mt-2 flex justify-between text-base"><span class="font-semibold">${days}天合计</span><span class="font-bold text-brand-700">${fmt(dp*days)} 元</span></div></div>`;
+  document.getElementById('sk-result').innerHTML = r;
+  document.getElementById('sk-result').classList.remove('hidden');
+});
+
+// 默认日期填充
+document.getElementById('sev-start').value = '2020-01-01';
+document.getElementById('sev-end').value = new Date().toISOString().split('T')[0];
+
+// ===== PWA Service Worker =====
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').then(() => {
+      console.log('SW registered');
+    }).catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
